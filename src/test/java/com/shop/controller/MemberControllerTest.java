@@ -1,6 +1,7 @@
 package com.shop.controller;
 
-import com.shop.dto.JoinFormDto;
+
+import com.shop.dto.MemberFormDto;
 import com.shop.entity.Member;
 import com.shop.service.MemberService;
 import org.junit.jupiter.api.DisplayName;
@@ -12,27 +13,29 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.test.web.servlet.response.SecurityMockMvcResultMatchers;
 import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.transaction.annotation.Transactional;
+
+import javax.transaction.Transactional;
+
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestBuilders.formLogin;
-import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 
 @SpringBootTest
-@Transactional
 @AutoConfigureMockMvc
+@Transactional
 @TestPropertySource(locations = "classpath:application-test.properties")
-class MemberControllerTest {
+public class MemberControllerTest {
 
     @Autowired
-    MemberService memberService;
-
-    @Autowired
-    PasswordEncoder passwordEncoder;
+    private MemberService memberService;
 
     @Autowired
     private MockMvc mockMvc;
 
+    @Autowired
+    PasswordEncoder passwordEncoder;
+
     public Member createMember(String email, String password) {
-        JoinFormDto memberFormDto = new JoinFormDto();
+
+        MemberFormDto memberFormDto = new MemberFormDto();
         memberFormDto.setEmail(email);
         memberFormDto.setName("홍길동");
         memberFormDto.setAddress("서울시 마포구 합정동");
@@ -48,10 +51,9 @@ class MemberControllerTest {
         String email = "test@email.com";
         String password = "1234";
         this.createMember(email, password);
-
-        mockMvc.perform(formLogin().loginProcessingUrl("/member/login")
-                .userParameter("email").user(email).password(password))
-                .andDo(print())
+        mockMvc.perform(formLogin().userParameter("email")
+                .loginProcessingUrl("/members/login")
+                .user(email).password(password))
                 .andExpect(SecurityMockMvcResultMatchers.authenticated());
     }
 
@@ -62,9 +64,9 @@ class MemberControllerTest {
         String email = "test@email.com";
         String password = "1234";
         this.createMember(email, password);
-
-        mockMvc.perform(formLogin().loginProcessingUrl("/member/login")
-                .userParameter("email").user(email).password("12345"))
+        mockMvc.perform(formLogin().userParameter("email")
+                .loginProcessingUrl("/members/login")
+                .user(email).password("12345"))
                 .andExpect(SecurityMockMvcResultMatchers.unauthenticated());
     }
 }

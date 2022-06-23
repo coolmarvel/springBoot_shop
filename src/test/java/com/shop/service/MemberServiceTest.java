@@ -1,34 +1,35 @@
 package com.shop.service;
 
-import com.shop.dto.JoinFormDto;
+
+import com.shop.dto.MemberFormDto;
 import com.shop.entity.Member;
-import com.shop.repository.MemberRepository;
-import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.DisplayName;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.test.context.TestPropertySource;
-import org.springframework.transaction.annotation.Transactional;
 
-import static org.junit.jupiter.api.Assertions.*;
+import javax.transaction.Transactional;
+
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 
 @SpringBootTest
 @Transactional
-@TestPropertySource(locations = "classpath:application-test.properties")
-class MemberServiceTest {
+@TestPropertySource(locations="classpath:application-test.properties")
+
+    class MemberServiceTest {
 
     @Autowired
     MemberService memberService;
 
     @Autowired
-    MemberRepository memberRepository;
-
-    @Autowired
     PasswordEncoder passwordEncoder;
 
     public Member createMember() {
-        JoinFormDto memberFormDto = new JoinFormDto();
+
+        MemberFormDto memberFormDto = new MemberFormDto();
         memberFormDto.setEmail("test@email.com");
         memberFormDto.setName("홍길동");
         memberFormDto.setAddress("서울시 마포구 합정동");
@@ -38,37 +39,29 @@ class MemberServiceTest {
 
     @Test
     @DisplayName("회원가입 테스트")
-    public void JoinTest() {
+    public void saveMemberTest() {
 
-        // given
         Member member = createMember();
-        memberService.saveMember(member);
+        Member savedMember = memberService.saveMember(member);
 
-        // when
-        Member savedMember = memberRepository.findByEmail(member.getEmail());
-
-        // then
-        assertEquals(savedMember.getEmail(), member.getEmail());
-        assertEquals(savedMember.getName(), member.getName());
-
+        assertEquals(member.getEmail(), savedMember.getEmail());
+        assertEquals(member.getName(), savedMember.getName());
+        assertEquals(member.getAddress(), savedMember.getAddress());
+        assertEquals(member.getPassword(), savedMember.getPassword());
+        assertEquals(member.getRole(), savedMember.getRole());
     }
 
     @Test
-    @DisplayName("중복회원 테스트")
-    public void duplicateMemberTest() {
+    @DisplayName("중복 회원 가입 테스트")
+    public void saveDuplicateMemberTest() {
 
-        // given
         Member member1 = createMember();
         Member member2 = createMember();
         memberService.saveMember(member1);
 
-        // when
         Throwable e = assertThrows(IllegalStateException.class, () -> {
-            memberService.saveMember(member2);
-        });
-
-        // then
+            memberService.saveMember(member2);});
         assertEquals("이미 가입된 회원입니다.", e.getMessage());
-
     }
+
 }
