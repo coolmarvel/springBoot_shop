@@ -1,6 +1,5 @@
 package com.shop.service;
 
-
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 
@@ -13,7 +12,7 @@ import java.util.UUID;
 public class FileService {
 
     public String uploadFile(String uploadPath, String originalFileName,
-                             byte[] fileData) throws Exception {
+            byte[] fileData) throws Exception {
         UUID uuid = UUID.randomUUID();
         String extension = originalFileName.substring(originalFileName
                 .lastIndexOf("."));
@@ -29,7 +28,7 @@ public class FileService {
 
         File deleteFile = new File(filePath);
 
-        if(deleteFile.exists()) {
+        if (deleteFile.exists()) {
             deleteFile.delete();
             log.info("파일을 삭제하였습니다.");
         } else {
